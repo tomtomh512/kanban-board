@@ -1,4 +1,4 @@
-import {Project} from "../types/types.ts";
+import { Project } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

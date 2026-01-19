@@ -2,7 +2,7 @@ import { Controller, Get, Post, Delete, Body, Param, UseGuards, Req } from '@nes
 import { Request } from 'express';
 import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthenticatedUser } from "../types/types";
+import { AuthenticatedUser } from '../users/users.types';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)

@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProject, addMember, removeMember, deleteProject } from '../api/projects';
 import { getProjectCards, createCard, updateCard, updateCardStatus, deleteCard } from '../api/cards';
 import { checkAuth } from '../api/auth';
-import { Card, CardStatus } from '../types/types';
+import {Card, CardStatus, UserSummary} from "../types";
 import { useWebSocket } from '../hooks/useWebSocket';
 import InviteModal from '../components/InviteModal';
 
@@ -389,7 +389,7 @@ export default function ProjectBoard() {
                                             )}
                                             {card.assignees.length > 0 && (
                                                 <div className="flex flex-wrap gap-1 mt-2">
-                                                    {card.assignees.map((assignee) => (
+                                                    {card.assignees.map((assignee: UserSummary) => (
                                                         <span
                                                             key={assignee.id}
                                                             className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded"

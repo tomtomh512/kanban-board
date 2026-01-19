@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from 
 import { Request } from 'express';
 import { CardsService } from './cards.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { AuthenticatedUser } from '../types/types';
+import { AuthenticatedUser } from "../users/users.types";
 import { CardStatus } from './card.entity';
 
 @Controller('cards')
