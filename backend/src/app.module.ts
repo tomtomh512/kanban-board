@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
@@ -11,9 +13,24 @@ import { Card } from './cards/card.entity';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-        }),
+        ConfigModule.forRoot({ isGlobal: true }),
+        ThrottlerModule.forRoot([
+            {
+                name: 'short',
+                ttl: 1000,
+                limit: 10,       // 10 requests per second
+            },
+            {
+                name: 'medium',
+                ttl: 60000,
+                limit: 100,      // 100 requests per minute
+            },
+            {
+                name: 'long',
+                ttl: 3600000,
+                limit: 1000,     // 1000 requests per hour
+            },
+        ]),
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.DATABASE_HOST,
@@ -28,6 +45,12 @@ import { Card } from './cards/card.entity';
         UsersModule,
         ProjectsModule,
         CardsModule,
+    ],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,  // applies rate limiting to all routes
+        },
     ],
 })
 export class AppModule {}
