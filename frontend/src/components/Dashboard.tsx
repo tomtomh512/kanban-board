@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { logout, checkAuth } from '../api/auth';
-import { getMyProjects, getInvitedProjects, createProject, addMember } from '../api/projects';
+import { getMyProjects, getInvitedProjects, createProject, addMember, updateProject } from '../api/projects';
 import InviteModal from '../components/InviteModal';
-import CreateProjectModal from '../components/CreateProjectModal';
+import ProjectModal from '../components/ProjectModal';
+import { Project } from '../types';
 
 export default function Dashboard() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showProjectModal, setShowProjectModal] = useState(false);
+    const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [inviteEmail, setInviteEmail] = useState('');
@@ -43,7 +45,16 @@ export default function Dashboard() {
             createProject(name, description),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['myProjects'] });
-            setShowCreateModal(false);
+            closeProjectModal();
+        },
+    });
+
+    const updateProjectMutation = useMutation({
+        mutationFn: ({ name, description }: { name: string; description: string }) =>
+            updateProject(editingProject!.id, name, description),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['myProjects'] });
+            closeProjectModal();
         },
     });
 
@@ -59,6 +70,29 @@ export default function Dashboard() {
             setInviteError(error.message);
         },
     });
+
+    const closeProjectModal = () => {
+        setShowProjectModal(false);
+        setEditingProject(null);
+    };
+
+    const openCreateModal = () => {
+        setEditingProject(null);
+        setShowProjectModal(true);
+    };
+
+    const openEditModal = (project: Project) => {
+        setEditingProject(project);
+        setShowProjectModal(true);
+    };
+
+    const handleProjectSubmit = (name: string, description: string) => {
+        if (editingProject) {
+            updateProjectMutation.mutate({ name, description });
+        } else {
+            createProjectMutation.mutate({ name, description });
+        }
+    };
 
     const handleInviteMember = (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,7 +129,7 @@ export default function Dashboard() {
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold">My Projects</h2>
                         <button
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={openCreateModal}
                             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
                         >
                             + Create Project
@@ -111,8 +145,8 @@ export default function Dashboard() {
                                     <div className="mt-1 flex flex-wrap gap-1">
                                         {project.members.map((member) => (
                                             <span key={member.id} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {member.name}
-                      </span>
+                                                {member.name}
+                                            </span>
                                         ))}
                                     </div>
                                 </div>
@@ -122,6 +156,12 @@ export default function Dashboard() {
                                         className="flex-1 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 text-sm font-medium"
                                     >
                                         Open Board
+                                    </button>
+                                    <button
+                                        onClick={() => openEditModal(project)}
+                                        className="flex-1 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 text-sm font-medium"
+                                    >
+                                        Edit
                                     </button>
                                     <button
                                         onClick={() => openInviteModal(project.id)}
@@ -175,11 +215,13 @@ export default function Dashboard() {
                 </div>
             </main>
 
-            <CreateProjectModal
-                isOpen={showCreateModal}
-                isSubmitting={createProjectMutation.isPending}
-                onSubmit={(name, description) => createProjectMutation.mutate({ name, description })}
-                onClose={() => setShowCreateModal(false)}
+            <ProjectModal
+                isOpen={showProjectModal}
+                isSubmitting={createProjectMutation.isPending || updateProjectMutation.isPending}
+                initialName={editingProject?.name ?? ''}
+                initialDescription={editingProject?.description ?? ''}
+                onSubmit={handleProjectSubmit}
+                onClose={closeProjectModal}
             />
 
             <InviteModal

@@ -28,6 +28,19 @@ export class ProjectsService {
         return this.projectsRepository.save(project);
     }
 
+    async update(projectId: string, requesterId: string, name?: string, description?: string): Promise<Project> {
+        const project = await this.findOne(projectId);
+
+        if (project.owner.id !== requesterId) {
+            throw new ForbiddenException('Only the project owner can edit this project');
+        }
+
+        if (name !== undefined) project.name = name;
+        if (description !== undefined) project.description = description;
+
+        return this.projectsRepository.save(project);
+    }
+
     async findMyProjects(userId: string): Promise<Project[]> {
         return this.projectsRepository.find({
             where: { owner: { id: userId } },

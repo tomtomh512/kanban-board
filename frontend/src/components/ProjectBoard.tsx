@@ -7,6 +7,7 @@ import { useProjectActions } from '../hooks/useProjectActions';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import InviteModal from '../components/InviteModal';
 import CardModal from '../components/CardModal';
+import ProjectModal from '../components/ProjectModal';
 import KanbanColumn, { STATUS_COLUMNS } from '../components/KanbanColumn';
 
 export default function ProjectBoard() {
@@ -16,6 +17,7 @@ export default function ProjectBoard() {
     const [showCardModal, setShowCardModal] = useState(false);
     const [editingCard, setEditingCard] = useState<Card | null>(null);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [showEditProjectModal, setShowEditProjectModal] = useState(false);
 
     const { user, project, cards, isLoading } = useProjectBoard(projectId);
 
@@ -34,8 +36,10 @@ export default function ProjectBoard() {
         inviteEmail, setInviteEmail,
         inviteError, setInviteError,
         isInviting,
+        isUpdatingProject,
         handleInviteMember,
         handleRemoveMember,
+        handleUpdateProject,
         handleDeleteProject,
     } = useProjectActions(projectId!);
 
@@ -94,12 +98,20 @@ export default function ProjectBoard() {
                                 + New Card
                             </button>
                             {isOwner && (
-                                <button
-                                    onClick={handleDeleteProject}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                                >
-                                    Delete Project
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => setShowEditProjectModal(true)}
+                                        className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+                                    >
+                                        Edit Project
+                                    </button>
+                                    <button
+                                        onClick={handleDeleteProject}
+                                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                                    >
+                                        Delete Project
+                                    </button>
+                                </>
                             )}
                         </div>
                     </div>
@@ -184,6 +196,18 @@ export default function ProjectBoard() {
                 isSubmitting={isSubmitting}
                 onSubmit={handleCardSubmit}
                 onClose={closeCardModal}
+            />
+
+            <ProjectModal
+                isOpen={showEditProjectModal}
+                isSubmitting={isUpdatingProject}
+                initialName={project.name}
+                initialDescription={project.description ?? ''}
+                onSubmit={(name, description) => {
+                    handleUpdateProject(name, description);
+                    setShowEditProjectModal(false);
+                }}
+                onClose={() => setShowEditProjectModal(false)}
             />
 
             <InviteModal

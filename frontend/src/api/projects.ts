@@ -17,6 +17,21 @@ export async function createProject(name: string, description?: string): Promise
     return response.json();
 }
 
+export async function updateProject(projectId: string, name?: string, description?: string): Promise<Project> {
+    const response = await fetch(`${API_URL}/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name, description }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update project');
+    }
+
+    return response.json();
+}
+
 export async function getMyProjects(): Promise<Project[]> {
     const response = await fetch(`${API_URL}/projects/my-projects`, {
         credentials: 'include',

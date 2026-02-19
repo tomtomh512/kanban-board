@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { addMember, removeMember, deleteProject } from '../api/projects';
+import { addMember, removeMember, deleteProject, updateProject } from '../api/projects';
 
 export function useProjectActions(projectId: string) {
     const navigate = useNavigate();
@@ -31,6 +31,15 @@ export function useProjectActions(projectId: string) {
         },
     });
 
+    const updateProjectMutation = useMutation({
+        mutationFn: ({ name, description }: { name: string; description: string }) =>
+            updateProject(projectId, name, description),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+            queryClient.invalidateQueries({ queryKey: ['myProjects'] });
+        },
+    });
+
     const deleteProjectMutation = useMutation({
         mutationFn: () => deleteProject(projectId),
         onSuccess: () => navigate('/dashboard'),
@@ -48,6 +57,10 @@ export function useProjectActions(projectId: string) {
         }
     };
 
+    const handleUpdateProject = (name: string, description: string) => {
+        updateProjectMutation.mutate({ name, description });
+    };
+
     const handleDeleteProject = () => {
         if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
             deleteProjectMutation.mutate();
@@ -60,8 +73,10 @@ export function useProjectActions(projectId: string) {
         inviteError,
         setInviteError,
         isInviting: inviteMutation.isPending,
+        isUpdatingProject: updateProjectMutation.isPending,
         handleInviteMember,
         handleRemoveMember,
+        handleUpdateProject,
         handleDeleteProject,
     };
 }

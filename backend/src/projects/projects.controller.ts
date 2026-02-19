@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import {Controller, Get, Post, Delete, Body, Param, UseGuards, Req, Patch} from '@nestjs/common';
 import { Request } from 'express';
 import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -33,6 +33,16 @@ export class ProjectsController {
     @Get(':id')
     async getProject(@Param('id') id: string) {
         return this.projectsService.findOne(id);
+    }
+
+    @Patch(':id')
+    async updateProject(
+        @Param('id') id: string,
+        @Body() body: { name?: string; description?: string },
+        @Req() req: Request,
+    ) {
+        const user = req.user as AuthenticatedUser;
+        return this.projectsService.update(id, user.id, body.name, body.description);
     }
 
     @Post(':id/members')
