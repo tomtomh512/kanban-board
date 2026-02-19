@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { logout, checkAuth } from '../api/auth';
 import { getMyProjects, getInvitedProjects, createProject, addMember } from '../api/projects';
 import InviteModal from '../components/InviteModal';
+import CreateProjectModal from '../components/CreateProjectModal';
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -11,8 +12,6 @@ export default function Dashboard() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-    const [projectName, setProjectName] = useState('');
-    const [projectDescription, setProjectDescription] = useState('');
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteError, setInviteError] = useState('');
 
@@ -40,12 +39,11 @@ export default function Dashboard() {
     });
 
     const createProjectMutation = useMutation({
-        mutationFn: () => createProject(projectName, projectDescription),
+        mutationFn: ({ name, description }: { name: string; description: string }) =>
+            createProject(name, description),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['myProjects'] });
             setShowCreateModal(false);
-            setProjectName('');
-            setProjectDescription('');
         },
     });
 
@@ -61,11 +59,6 @@ export default function Dashboard() {
             setInviteError(error.message);
         },
     });
-
-    const handleCreateProject = (e: React.FormEvent) => {
-        e.preventDefault();
-        createProjectMutation.mutate();
-    };
 
     const handleInviteMember = (e: React.FormEvent) => {
         e.preventDefault();
@@ -182,66 +175,26 @@ export default function Dashboard() {
                 </div>
             </main>
 
-            {showCreateModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h3 className="text-xl font-bold mb-4">Create New Project</h3>
-                        <form onSubmit={handleCreateProject}>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">Project Name</label>
-                                <input
-                                    type="text"
-                                    value={projectName}
-                                    onChange={(e) => setProjectName(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">Description</label>
-                                <textarea
-                                    value={projectDescription}
-                                    onChange={(e) => setProjectDescription(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    rows={3}
-                                />
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    type="submit"
-                                    disabled={createProjectMutation.isPending}
-                                    className="flex-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
-                                >
-                                    Create
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowCreateModal(false)}
-                                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <CreateProjectModal
+                isOpen={showCreateModal}
+                isSubmitting={createProjectMutation.isPending}
+                onSubmit={(name, description) => createProjectMutation.mutate({ name, description })}
+                onClose={() => setShowCreateModal(false)}
+            />
 
-            {showInviteModal && (
-                <InviteModal
-                    isOpen={showInviteModal}
-                    email={inviteEmail}
-                    error={inviteError}
-                    isSubmitting={inviteMutation.isPending}
-                    onEmailChange={setInviteEmail}
-                    onSubmit={handleInviteMember}
-                    onClose={() => {
-                        setShowInviteModal(false);
-                        setInviteEmail('');
-                        setInviteError('');
-                    }}
-                />
-            )}
+            <InviteModal
+                isOpen={showInviteModal}
+                email={inviteEmail}
+                error={inviteError}
+                isSubmitting={inviteMutation.isPending}
+                onEmailChange={setInviteEmail}
+                onSubmit={handleInviteMember}
+                onClose={() => {
+                    setShowInviteModal(false);
+                    setInviteEmail('');
+                    setInviteError('');
+                }}
+            />
         </div>
     );
 }
