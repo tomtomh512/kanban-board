@@ -1,20 +1,13 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardStatus, UserSummary } from '../types';
+import { Card } from '../types';
 import { useProjectBoard } from '../hooks/useProjectBoard';
 import { useCardActions } from '../hooks/useCardActions';
 import { useProjectActions } from '../hooks/useProjectActions';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import InviteModal from '../components/InviteModal';
 import CardModal from '../components/CardModal';
-
-const STATUS_COLUMNS = [
-    { id: CardStatus.BACKLOG, title: 'Backlog', color: 'bg-gray-100' },
-    { id: CardStatus.PLANNED, title: 'Planned', color: 'bg-blue-100' },
-    { id: CardStatus.IN_PROGRESS, title: 'In Progress', color: 'bg-yellow-100' },
-    { id: CardStatus.TESTING, title: 'Testing', color: 'bg-purple-100' },
-    { id: CardStatus.FINISHED, title: 'Finished', color: 'bg-green-100' },
-];
+import KanbanColumn, { STATUS_COLUMNS } from '../components/KanbanColumn';
 
 export default function ProjectBoard() {
     const { projectId } = useParams<{ projectId: string }>();
@@ -160,81 +153,25 @@ export default function ProjectBoard() {
                     {STATUS_COLUMNS.map((column) => {
                         const columnCards = getCardsByStatus(column.id);
                         return (
-                            <div
+                            <KanbanColumn
                                 key={column.id}
-                                className="flex-shrink-0 w-80"
+                                id={column.id}
+                                title={column.title}
+                                color={column.color}
+                                cards={columnCards}
+                                onDragStart={handleDragStart}
                                 onDragOver={handleDragOver}
-                                onDrop={(e) => {
+                                onDropColumn={(e) => {
                                     e.preventDefault();
                                     handleDrop(column.id, columnCards.length);
                                 }}
-                            >
-                                <div className={`${column.color} rounded-lg p-3 mb-3`}>
-                                    <h3 className="font-semibold text-sm">
-                                        {column.title} ({columnCards.length})
-                                    </h3>
-                                </div>
-                                <div className="space-y-3 min-h-[200px]">
-                                    {columnCards.map((card, index) => (
-                                        <div
-                                            key={card.id}
-                                            draggable
-                                            onDragStart={() => handleDragStart(card)}
-                                            onDragOver={handleDragOver}
-                                            onDrop={(e) => {
-                                                e.stopPropagation();
-                                                handleDrop(column.id, index);
-                                            }}
-                                            className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow"
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-medium text-sm flex-1">{card.title}</h4>
-                                                <div className="flex gap-1 ml-2">
-                                                    <button
-                                                        onClick={() => openEditModal(card)}
-                                                        className="text-blue-500 hover:text-blue-700 text-xs"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteCard(card.id)}
-                                                        className="text-red-500 hover:text-red-700 text-xs"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            {card.description && (
-                                                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                                                    {card.description}
-                                                </p>
-                                            )}
-                                            {card.link && (
-                                                <a
-                                                    href={card.link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-xs text-blue-500 hover:underline block mb-2"
-                                                >
-                                                    🔗 Link
-                                                </a>
-                                            )}
-                                            {card.assignees.length > 0 && (
-                                                <div className="flex flex-wrap gap-1 mt-2">
-                                                    {card.assignees.map((assignee: UserSummary) => (
-                                                        <span
-                                                            key={assignee.id}
-                                                            className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded"
-                                                        >
-                                                            {assignee.name}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                                onDropCard={(e, index) => {
+                                    e.stopPropagation();
+                                    handleDrop(column.id, index);
+                                }}
+                                onEdit={openEditModal}
+                                onDelete={handleDeleteCard}
+                            />
                         );
                     })}
                 </div>
