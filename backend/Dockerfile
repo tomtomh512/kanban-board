@@ -12,4 +12,4 @@ RUN npm run build
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js || sleep 1000"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
