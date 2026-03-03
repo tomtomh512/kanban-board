@@ -4,6 +4,9 @@
 docker-compose up --build
 ```
 
+## Backend
+Backend runs on port 3001
+
 **Local Setup**
 
 1. Navigate to the backend directory:
@@ -44,4 +47,26 @@ npm run start
 
 ---
 
-Backend runs on port 3001
+## Frontend
+
+Frontend runs on port 5173
+
+**Local Setup**
+
+1. Navigate to the frontend directory:
+
+```terminaloutput
+cd frontend
+```
+
+2. Install dependencies:
+
+```terminaloutput
+npm install
+```
+
+3. Run frontend:
+
+```terminaloutput
+npm run dev
+```

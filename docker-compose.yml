@@ -23,3 +23,15 @@ services:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/postgres
     ports:
       - "3001:3001"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:3001
