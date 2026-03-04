@@ -11,7 +11,8 @@ export async function login(email: string, password: string): Promise<User> {
     });
 
     if (!response.ok) {
-        throw new Error('Login failed');
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
     }
 
     const data = await response.json();
@@ -31,7 +32,8 @@ export async function register(
     });
 
     if (!response.ok) {
-        throw new Error('Registration failed');
+        const error = await response.json();
+        throw new Error(error.message || 'Registration failed');
     }
 
     const data = await response.json();

@@ -48,7 +48,9 @@ export default function Login() {
                         />
                     </div>
                     {loginMutation.isError && (
-                        <p className="text-red-500 text-sm">Invalid credentials</p>
+                      <p className="text-red-500 text-sm">
+                          {loginMutation.error?.message || 'Invalid credentials'}
+                      </p>
                     )}
                     <button
                         type="submit"

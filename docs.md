@@ -65,7 +65,13 @@ cd frontend
 npm install
 ```
 
-3. Run frontend:
+3. Create a `.env` file and add `VITE_API_URL`. Example:
+
+```terminaloutput
+VITE_API_URL="http://localhost:3001"
+```
+
+4. Run frontend:
 
 ```terminaloutput
 npm run dev

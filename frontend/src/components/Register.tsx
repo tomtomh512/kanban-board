@@ -59,7 +59,9 @@ export default function Register() {
                         />
                     </div>
                     {registerMutation.isError && (
-                        <p className="text-red-500 text-sm">Registration failed</p>
+                      <p className="text-red-500 text-sm">
+                          {registerMutation.error?.message || 'Registration failed'}
+                      </p>
                     )}
                     <button
                         type="submit"
