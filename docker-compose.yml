@@ -21,6 +21,8 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/postgres
+      JWT_SECRET: jwt_secret
+      FRONTEND_URL: http://localhost:5173
     ports:
       - "3001:3001"
 

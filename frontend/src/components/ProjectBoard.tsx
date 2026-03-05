@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card } from '../types';
+import {Card, CardStatus} from '../types';
 import { useProjectBoard } from '../hooks/useProjectBoard';
 import { useCardActions } from '../hooks/useCardActions';
 import { useProjectActions } from '../hooks/useProjectActions';
@@ -8,7 +8,15 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import InviteModal from '../components/InviteModal';
 import CardModal from '../components/CardModal';
 import ProjectModal from '../components/ProjectModal';
-import KanbanColumn, { STATUS_COLUMNS } from '../components/KanbanColumn';
+import KanbanColumn from '../components/KanbanColumn';
+
+const STATUS_COLUMNS = [
+    { id: CardStatus.BACKLOG, title: 'Backlog', color: 'bg-gray-100' },
+    { id: CardStatus.PLANNED, title: 'Planned', color: 'bg-blue-100' },
+    { id: CardStatus.IN_PROGRESS, title: 'In Progress', color: 'bg-yellow-100' },
+    { id: CardStatus.TESTING, title: 'Testing', color: 'bg-purple-100' },
+    { id: CardStatus.FINISHED, title: 'Finished', color: 'bg-green-100' },
+];
 
 export default function ProjectBoard() {
     const { projectId } = useParams<{ projectId: string }>();

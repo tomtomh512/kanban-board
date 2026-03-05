@@ -1,14 +1,6 @@
 import { Card, CardStatus } from '../types';
 import KanbanCard from './KanbanCard';
 
-export const STATUS_COLUMNS = [
-    { id: CardStatus.BACKLOG, title: 'Backlog', color: 'bg-gray-100' },
-    { id: CardStatus.PLANNED, title: 'Planned', color: 'bg-blue-100' },
-    { id: CardStatus.IN_PROGRESS, title: 'In Progress', color: 'bg-yellow-100' },
-    { id: CardStatus.TESTING, title: 'Testing', color: 'bg-purple-100' },
-    { id: CardStatus.FINISHED, title: 'Finished', color: 'bg-green-100' },
-];
-
 interface KanbanColumnProps {
     id: CardStatus;
     title: string;

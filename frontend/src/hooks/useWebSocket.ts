@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { Card } from '../types';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL;
 
 export function useWebSocket(projectId: string | undefined, callbacks: {
-    onCardCreated?: (card: any) => void;
-    onCardUpdated?: (card: any) => void;
+    onCardCreated?: (card: Card) => void;
+    onCardUpdated?: (card: Card) => void;
     onCardDeleted?: (data: { cardId: string }) => void;
-    onCardMoved?: (card: any) => void;
+    onCardMoved?: (card: Card) => void;
 }) {
     const socketRef = useRef<Socket | null>(null);
 
@@ -58,6 +59,4 @@ export function useWebSocket(projectId: string | undefined, callbacks: {
             socket.disconnect();
         };
     }, [projectId, callbacks.onCardCreated, callbacks.onCardUpdated, callbacks.onCardDeleted, callbacks.onCardMoved]);
-
-    return socketRef.current;
 }

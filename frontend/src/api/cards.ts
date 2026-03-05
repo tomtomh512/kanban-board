@@ -1,4 +1,4 @@
-import { Card, CardStatus } from '../types/types';
+import { Card, CardStatus } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL;
 

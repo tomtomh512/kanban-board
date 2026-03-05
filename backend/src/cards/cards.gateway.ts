@@ -6,11 +6,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Prisma } from '../generated/prisma/client';
-
-type CardWithAssignees = Prisma.CardGetPayload<{
-  include: { assignees: true };
-}>;
+import { CardWithAssignees } from './cards.types';
 
 @WebSocketGateway({
   cors: {

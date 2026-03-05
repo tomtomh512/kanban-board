@@ -7,11 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ProjectsService } from '../projects/projects.service';
 import { CardsGateway } from './cards.gateway';
 import { CardStatus } from '../generated/prisma/enums';
-import { Prisma } from '../generated/prisma/client';
-
-type ProjectWithMembers = Prisma.ProjectGetPayload<{
-  include: { members: true };
-}>;
+import { ProjectWithMembers } from '../projects/projects.types';
 
 @Injectable()
 export class CardsService {
