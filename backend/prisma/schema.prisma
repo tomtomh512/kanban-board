@@ -22,6 +22,8 @@ model User {
 
   ownedProjects   Project[] @relation("ProjectOwner")
   memberProjects  Project[] @relation("ProjectMembers")
+
+  assignedCards  Card[]  @relation("CardAssignees")
 }
 
 model Project {
@@ -34,4 +36,30 @@ model Project {
   owner       User     @relation("ProjectOwner", fields: [ownerId], references: [id])
 
   members     User[]   @relation("ProjectMembers")
+
+  cards     Card[]
+}
+
+enum CardStatus {
+  backlog
+  planned
+  in_progress
+  testing
+  finished
+}
+
+model Card {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  link        String?
+  status      CardStatus @default(backlog)
+  position    Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  assignees   User[]     @relation("CardAssignees")
 }

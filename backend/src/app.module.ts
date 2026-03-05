@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
-// import { CardsModule } from './cards/cards.module';
+import { CardsModule } from './cards/cards.module';
 
 @Module({
   imports: [
@@ -36,7 +36,7 @@ import { ProjectsModule } from './projects/projects.module';
     AuthModule,
     UsersModule,
     ProjectsModule,
-    // CardsModule,
+    CardsModule,
   ],
   providers: [
     {
