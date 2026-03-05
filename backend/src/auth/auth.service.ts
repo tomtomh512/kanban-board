@@ -70,6 +70,8 @@ export class AuthService {
   }
 
   async validateUser(userId: string) {
-    return this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId);
+
+    return user;
   }
 }

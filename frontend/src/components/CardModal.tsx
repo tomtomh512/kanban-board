@@ -59,7 +59,7 @@ export default function CardModal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <h3 className="text-xl font-bold mb-4">
                     {editingCard ? 'Edit Card' : 'Create New Card'}

@@ -6,7 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-// import { ProjectsModule } from './projects/projects.module';
+import { ProjectsModule } from './projects/projects.module';
 // import { CardsModule } from './cards/cards.module';
 
 @Module({
@@ -35,7 +35,7 @@ import { UsersModule } from './users/users.module';
 
     AuthModule,
     UsersModule,
-    // ProjectsModule,
+    ProjectsModule,
     // CardsModule,
   ],
   providers: [
