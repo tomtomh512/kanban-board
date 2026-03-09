@@ -41,8 +41,12 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  async getProject(@Param('id') id: string) {
-    return this.projectsService.findOne(id);
+  async getProject(
+    @Param('id') projectid: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as AuthenticatedUser;
+    return this.projectsService.findProject(projectid, user.id);
   }
 
   @Patch(':id')
@@ -62,12 +66,13 @@ export class ProjectsController {
 
   @Post(':id/members')
   async addMember(
-    @Param('id') id: string,
+    @Param('id') projectId: string,
     @Body() body: { email: string },
     @Req() req: Request,
   ) {
     const user = req.user as AuthenticatedUser;
-    return this.projectsService.addMemberByEmail(id, body.email, user.id);
+    await this.projectsService.addMemberByEmail(projectId, body.email, user.id);
+    return { message: 'Member added successfully' };
   }
 
   @Delete(':id/members/:userId')
@@ -77,7 +82,8 @@ export class ProjectsController {
     @Req() req: Request,
   ) {
     const requester = req.user as AuthenticatedUser;
-    return this.projectsService.removeMember(projectId, userId, requester.id);
+    await this.projectsService.removeMember(projectId, userId, requester.id);
+    return { message: 'Member removed successfully' };
   }
 
   @Delete(':id')

@@ -68,7 +68,7 @@ export async function getProject(id: string): Promise<Project> {
     return response.json();
 }
 
-export async function addMember(projectId: string, email: string): Promise<Project> {
+export async function addMember(projectId: string, email: string): Promise<void> {
     const response = await fetch(`${API_URL}/projects/${projectId}/members`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,11 +80,9 @@ export async function addMember(projectId: string, email: string): Promise<Proje
         const error = await response.json();
         throw new Error(error.message || 'Failed to add member');
     }
-
-    return response.json();
 }
 
-export async function removeMember(projectId: string, userId: string): Promise<Project> {
+export async function removeMember(projectId: string, userId: string): Promise<void> {
     const response = await fetch(`${API_URL}/projects/${projectId}/members/${userId}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -93,8 +91,6 @@ export async function removeMember(projectId: string, userId: string): Promise<P
     if (!response.ok) {
         throw new Error('Failed to remove member');
     }
-
-    return response.json();
 }
 
 export async function deleteProject(projectId: string): Promise<void> {

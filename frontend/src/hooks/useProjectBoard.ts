@@ -5,8 +5,10 @@ import { getProject } from '../api/projects';
 import { getProjectCards } from '../api/cards';
 import { useWebSocket } from './useWebSocket';
 import { Card } from '../types';
+import {useNavigate} from "react-router-dom";
 
 export function useProjectBoard(projectId: string | undefined) {
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     const { data: user } = useQuery({
@@ -18,6 +20,11 @@ export function useProjectBoard(projectId: string | undefined) {
         queryKey: ['project', projectId],
         queryFn: () => getProject(projectId!),
         enabled: !!projectId,
+        retry: false,
+        throwOnError: () => {
+            navigate('/dashboard');
+            return false;
+        },
     });
 
     const { data: cards = [] } = useQuery({

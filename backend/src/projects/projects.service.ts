@@ -20,7 +20,7 @@ export class ProjectsService {
       throw new NotFoundException('User not found');
     }
 
-    const project = this.prisma.project.create({
+    return this.prisma.project.create({
       data: {
         name,
         description,
@@ -28,8 +28,6 @@ export class ProjectsService {
         members: { connect: { id: ownerId } },
       },
     });
-
-    return project;
   }
 
   async update(
@@ -46,29 +44,25 @@ export class ProjectsService {
       );
     }
 
-    const updatedProject = this.prisma.project.update({
+    return this.prisma.project.update({
       where: { id: projectId },
       data: {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
       },
     });
-
-    return updatedProject;
   }
 
   async findMyProjects(userId: string) {
-    const projects = await this.prisma.project.findMany({
+    return this.prisma.project.findMany({
       where: { ownerId: userId },
       orderBy: { createdAt: 'desc' },
       include: { owner: true, members: true },
     });
-
-    return projects;
   }
 
   async findInvitedProjects(userId: string) {
-    const projects = await this.prisma.project.findMany({
+    return this.prisma.project.findMany({
       where: {
         members: { some: { id: userId } },
         NOT: { ownerId: userId },
@@ -79,8 +73,6 @@ export class ProjectsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-
-    return projects;
   }
 
   async findOne(id: string) {
@@ -91,6 +83,18 @@ export class ProjectsService {
 
     if (!project) {
       throw new NotFoundException('Project not found');
+    }
+
+    return project;
+  }
+
+  async findProject(projectId: string, userId: string) {
+    const project = await this.findOne(projectId);
+
+    const isMember = project.members.some((member) => member.id === userId);
+
+    if (!isMember) {
+      throw new ForbiddenException('You do not have access to this project');
     }
 
     return project;
@@ -121,14 +125,12 @@ export class ProjectsService {
       throw new ForbiddenException('User is already a member of this project');
     }
 
-    const updatedProject = this.prisma.project.update({
+    await this.prisma.project.update({
       where: { id: projectId },
       data: {
         members: { connect: { id: user.id } },
       },
     });
-
-    return updatedProject;
   }
 
   async removeMember(projectId: string, userId: string, requesterId: string) {
@@ -142,14 +144,12 @@ export class ProjectsService {
       throw new ForbiddenException('Cannot remove the project owner');
     }
 
-    const updatedProject = this.prisma.project.update({
+    await this.prisma.project.update({
       where: { id: projectId },
       data: {
         members: { disconnect: { id: userId } },
       },
     });
-
-    return updatedProject;
   }
 
   async delete(projectId: string, requesterId: string): Promise<void> {
