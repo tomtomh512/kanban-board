@@ -13,7 +13,14 @@ import { Request } from 'express';
 import { CardsService } from './cards.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthenticatedUser } from '../users/users.types';
-import { CardStatus } from '../generated/prisma/enums';
+import {
+  CardWithAssignees,
+  CardWithProject,
+  CreateCardBody,
+  MessageResponse,
+  UpdateCardBody,
+  UpdateCardStatusBody,
+} from './cards.types';
 
 @Controller('cards')
 @UseGuards(JwtAuthGuard)
@@ -22,23 +29,16 @@ export class CardsController {
 
   @Post()
   async create(
-    @Body()
-    body: {
-      projectId: string;
-      title: string;
-      description?: string;
-      link?: string;
-      assigneeIds?: string[];
-    },
+    @Body() body: CreateCardBody,
     @Req() req: Request,
-  ) {
+  ): Promise<CardWithAssignees> {
     const user = req.user as AuthenticatedUser;
     return this.cardsService.create(
       body.projectId,
       body.title,
       body.description,
       body.link,
-      body.assigneeIds || [],
+      body.assigneeIds ?? [],
       user.id,
     );
   }
@@ -47,13 +47,16 @@ export class CardsController {
   async getProjectCards(
     @Param('projectId') projectId: string,
     @Req() req: Request,
-  ) {
+  ): Promise<CardWithAssignees[]> {
     const user = req.user as AuthenticatedUser;
     return this.cardsService.findAllByProject(projectId, user.id);
   }
 
   @Get(':id')
-  async getCard(@Param('id') id: string, @Req() req: Request) {
+  async getCard(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<CardWithProject> {
     const user = req.user as AuthenticatedUser;
     return this.cardsService.findOne(id, user.id);
   }
@@ -61,22 +64,16 @@ export class CardsController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body()
-    body: {
-      title: string;
-      description?: string;
-      link?: string;
-      assigneeIds?: string[];
-    },
+    @Body() body: UpdateCardBody,
     @Req() req: Request,
-  ) {
+  ): Promise<CardWithAssignees> {
     const user = req.user as AuthenticatedUser;
     return this.cardsService.update(
       id,
       body.title,
       body.description,
       body.link,
-      body.assigneeIds || [],
+      body.assigneeIds ?? [],
       user.id,
     );
   }
@@ -84,13 +81,9 @@ export class CardsController {
   @Put(':id/status')
   async updateStatus(
     @Param('id') id: string,
-    @Body()
-    body: {
-      status: CardStatus;
-      position: number;
-    },
+    @Body() body: UpdateCardStatusBody,
     @Req() req: Request,
-  ) {
+  ): Promise<CardWithAssignees> {
     const user = req.user as AuthenticatedUser;
     return this.cardsService.updateStatus(
       id,
@@ -101,7 +94,10 @@ export class CardsController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string, @Req() req: Request) {
+  async delete(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<MessageResponse> {
     const user = req.user as AuthenticatedUser;
     await this.cardsService.delete(id, user.id);
     return { message: 'Card deleted successfully' };

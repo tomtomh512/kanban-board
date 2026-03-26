@@ -5,6 +5,7 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { JwtPayload } from './auth.types';
+import { AuthenticatedUser } from '../users/users.types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const user = await this.authService.validateUser(payload.sub);
 
     if (!user) {

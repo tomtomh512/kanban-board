@@ -8,6 +8,7 @@ import { ProjectsService } from '../projects/projects.service';
 import { CardsGateway } from './cards.gateway';
 import { CardStatus } from '../generated/prisma/enums';
 import { ProjectWithMembers } from '../projects/projects.types';
+import { CardWithAssignees, CardWithProject } from './cards.types';
 
 @Injectable()
 export class CardsService {
@@ -24,7 +25,7 @@ export class CardsService {
     link: string | undefined,
     assigneeIds: string[],
     userId: string,
-  ) {
+  ): Promise<CardWithAssignees> {
     const project = await this.projectsService.findOne(projectId);
     this.verifyProjectAccess(project, userId);
 
@@ -52,7 +53,10 @@ export class CardsService {
     return card;
   }
 
-  async findAllByProject(projectId: string, userId: string) {
+  async findAllByProject(
+    projectId: string,
+    userId: string,
+  ): Promise<CardWithAssignees[]> {
     const project = await this.projectsService.findOne(projectId);
     this.verifyProjectAccess(project, userId);
 
@@ -63,10 +67,13 @@ export class CardsService {
     });
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, userId: string): Promise<CardWithProject> {
     const card = await this.prisma.card.findUnique({
       where: { id },
-      include: { project: { include: { members: true } }, assignees: true },
+      include: {
+        project: { include: { owner: true, members: true } },
+        assignees: true,
+      },
     });
 
     if (!card) {
@@ -84,7 +91,7 @@ export class CardsService {
     link: string | undefined,
     assigneeIds: string[],
     userId: string,
-  ) {
+  ): Promise<CardWithAssignees> {
     const card = await this.findOne(id, userId);
 
     const updatedCard = await this.prisma.card.update({
@@ -94,7 +101,7 @@ export class CardsService {
         description,
         link,
         assignees: {
-          set: assigneeIds.map((id) => ({ id })), // set replaces all assignees
+          set: assigneeIds.map((assigneeId) => ({ id: assigneeId })),
         },
       },
       include: { assignees: true },
@@ -109,7 +116,7 @@ export class CardsService {
     status: CardStatus,
     position: number,
     userId: string,
-  ) {
+  ): Promise<CardWithAssignees> {
     const card = await this.findOne(id, userId);
     const oldStatus = card.status;
     const projectId = card.project.id;

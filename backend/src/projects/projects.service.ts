@@ -27,6 +27,7 @@ export class ProjectsService {
         owner: { connect: { id: ownerId } },
         members: { connect: { id: ownerId } },
       },
+      include: { owner: true, members: true },
     });
   }
 
@@ -50,6 +51,7 @@ export class ProjectsService {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
       },
+      include: { owner: true, members: true },
     });
   }
 

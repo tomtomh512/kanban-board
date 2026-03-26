@@ -13,6 +13,13 @@ import { Request } from 'express';
 import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuthenticatedUser } from '../users/users.types';
+import {
+  AddMemberBody,
+  CreateProjectBody,
+  MessageResponse,
+  ProjectWithMembers,
+  UpdateProjectBody,
+} from './projects.types';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -21,40 +28,40 @@ export class ProjectsController {
 
   @Post()
   async create(
-    @Body() body: { name: string; description?: string },
+    @Body() body: CreateProjectBody,
     @Req() req: Request,
-  ) {
+  ): Promise<ProjectWithMembers> {
     const user = req.user as AuthenticatedUser;
     return this.projectsService.create(body.name, body.description, user.id);
   }
 
   @Get('my-projects')
-  getMyProjects(@Req() req: Request) {
+  getMyProjects(@Req() req: Request): Promise<ProjectWithMembers[]> {
     const user = req.user as AuthenticatedUser;
     return this.projectsService.findMyProjects(user.id);
   }
 
   @Get('invited-projects')
-  getInvitedProjects(@Req() req: Request) {
+  getInvitedProjects(@Req() req: Request): Promise<ProjectWithMembers[]> {
     const user = req.user as AuthenticatedUser;
     return this.projectsService.findInvitedProjects(user.id);
   }
 
   @Get(':id')
   async getProject(
-    @Param('id') projectid: string,
+    @Param('id') projectId: string,
     @Req() req: Request,
-  ) {
+  ): Promise<ProjectWithMembers> {
     const user = req.user as AuthenticatedUser;
-    return this.projectsService.findProject(projectid, user.id);
+    return this.projectsService.findProject(projectId, user.id);
   }
 
   @Patch(':id')
   async updateProject(
     @Param('id') id: string,
-    @Body() body: { name?: string; description?: string },
+    @Body() body: UpdateProjectBody,
     @Req() req: Request,
-  ) {
+  ): Promise<ProjectWithMembers> {
     const user = req.user as AuthenticatedUser;
     return this.projectsService.update(
       id,
@@ -67,9 +74,9 @@ export class ProjectsController {
   @Post(':id/members')
   async addMember(
     @Param('id') projectId: string,
-    @Body() body: { email: string },
+    @Body() body: AddMemberBody,
     @Req() req: Request,
-  ) {
+  ): Promise<MessageResponse> {
     const user = req.user as AuthenticatedUser;
     await this.projectsService.addMemberByEmail(projectId, body.email, user.id);
     return { message: 'Member added successfully' };
@@ -80,14 +87,17 @@ export class ProjectsController {
     @Param('id') projectId: string,
     @Param('userId') userId: string,
     @Req() req: Request,
-  ) {
+  ): Promise<MessageResponse> {
     const requester = req.user as AuthenticatedUser;
     await this.projectsService.removeMember(projectId, userId, requester.id);
     return { message: 'Member removed successfully' };
   }
 
   @Delete(':id')
-  async deleteProject(@Param('id') id: string, @Req() req: Request) {
+  async deleteProject(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<MessageResponse> {
     const user = req.user as AuthenticatedUser;
     await this.projectsService.delete(id, user.id);
     return { message: 'Project deleted successfully' };

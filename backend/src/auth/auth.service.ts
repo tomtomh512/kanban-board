@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { AuthResult, JwtPayload } from './auth.types';
+
 
 @Injectable()
 export class AuthService {
@@ -13,14 +15,18 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private createJwtPayload(user: { id: string; email: string }) {
+  private createJwtPayload(user: { id: string; email: string }): JwtPayload {
     return {
       email: user.email,
       sub: user.id,
     };
   }
 
-  async register(email: string, password: string, name: string) {
+  async register(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<AuthResult> {
     const existingUser = await this.usersService.findByEmail(email);
 
     if (existingUser) {
@@ -41,7 +47,7 @@ export class AuthService {
     };
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<AuthResult> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
@@ -69,7 +75,12 @@ export class AuthService {
     };
   }
 
-  async validateUser(userId: string) {
+  async validateUser(userId: string): Promise<{
+    id: string;
+    email: string;
+    name: string;
+    password: string;
+  } | null> {
     return this.usersService.findById(userId);
   }
 }

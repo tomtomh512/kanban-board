@@ -20,13 +20,12 @@ export class CardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private projectRooms: Map<string, Set<string>> = new Map();
 
-  handleConnection(client: Socket) {
+  handleConnection(client: Socket): void {
     console.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: Socket): void {
     console.log(`Client disconnected: ${client.id}`);
-    // Clean up project rooms
     this.projectRooms.forEach((clients, projectId) => {
       clients.delete(client.id);
       if (clients.size === 0) {
@@ -36,7 +35,7 @@ export class CardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinProject')
-  handleJoinProject(client: Socket, projectId: string) {
+  handleJoinProject(client: Socket, projectId: string): void {
     client.join(`project:${projectId}`);
 
     if (!this.projectRooms.has(projectId)) {
@@ -48,7 +47,7 @@ export class CardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveProject')
-  handleLeaveProject(client: Socket, projectId: string) {
+  handleLeaveProject(client: Socket, projectId: string): void {
     client.leave(`project:${projectId}`);
 
     const room = this.projectRooms.get(projectId);
@@ -62,24 +61,23 @@ export class CardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`Client ${client.id} left project ${projectId}`);
   }
 
-  // Emit events to all clients in a project room
-  emitToProject(projectId: string, event: string, data: any) {
+  emitToProject(projectId: string, event: string, data: unknown): void {
     this.server.to(`project:${projectId}`).emit(event, data);
   }
 
-  cardCreated(projectId: string, card: CardWithAssignees) {
+  cardCreated(projectId: string, card: CardWithAssignees): void {
     this.emitToProject(projectId, 'cardCreated', card);
   }
 
-  cardUpdated(projectId: string, card: CardWithAssignees) {
+  cardUpdated(projectId: string, card: CardWithAssignees): void {
     this.emitToProject(projectId, 'cardUpdated', card);
   }
 
-  cardDeleted(projectId: string, cardId: string) {
+  cardDeleted(projectId: string, cardId: string): void {
     this.emitToProject(projectId, 'cardDeleted', { cardId });
   }
 
-  cardMoved(projectId: string, card: CardWithAssignees) {
+  cardMoved(projectId: string, card: CardWithAssignees): void {
     this.emitToProject(projectId, 'cardMoved', card);
   }
 }
