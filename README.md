@@ -28,11 +28,22 @@ A NestJS backend with React frontend for real-time collaborative project managem
 ## Running on Docker
 
 1. Ensure Docker and Docker Compose are installed on your system
-2. From the project root directory, start all services:
+2. Create a `.env` file with the following variables:
+
+```terminaloutput
+POSTGRES_USER
+POSTGRES_PASSWORD
+POSTGRES_DB
+
+JWT_SECRET
+FRONTEND_URL
+VITE_API_URL
+```
+3. Start all services:
 ```
 docker-compose up --build
 ```
-3. Access the application:
+4. Access the application:
     - Frontend: port 5173
     - Backend API: port 3001
     - PostgreSQL: port 5432
